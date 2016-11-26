@@ -5,6 +5,7 @@
   "author": "dmanhaus <dmanhaus@gmail.com>",
   "license": "MIT",
   "scripts": {
-  	"start": "node ."
-  }
+    "start": "node ."
+  },
+  "dependencies": {}
 }
