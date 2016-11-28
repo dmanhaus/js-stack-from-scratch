@@ -3,6 +3,7 @@
 import gulp from 'gulp';
 import babel from 'gulp-babel';
 import eslint from 'gulp-eslint';
+import mocha from 'gulp-mocha';
 import del from 'del';
 import webpack from 'webpack-stream';
 import webpackConfig from './webpack.config.babel';
@@ -17,7 +18,19 @@ const paths = {
   webpackFile: 'webpack.config.babel.js',
   libDir: 'lib',
   distDir: 'dist',
+  allLibTests: 'lib/test/**/*.js',
 };
+
+gulp.task('build', ['lint', 'clean'], () => (
+  gulp.src(paths.allSrcJs)
+    .pipe(babel())
+    .pipe(gulp.dest(paths.libDir))
+));
+
+gulp.task('clean', () => del([
+  paths.libDir,
+  paths.clientBundle,
+]));
 
 gulp.task('lint', () => (
   gulp.src([
@@ -30,21 +43,15 @@ gulp.task('lint', () => (
     .pipe(eslint.failAfterError())
 ));
 
-gulp.task('clean', () => del([
-  paths.libDir,
-  paths.clientBundle,
-]));
-
-gulp.task('build', ['lint', 'clean'], () => (
-  gulp.src(paths.allSrcJs)
-    .pipe(babel())
-    .pipe(gulp.dest(paths.libDir))
-));
-
-gulp.task('main', ['lint', 'clean'], () => (
+gulp.task('main', ['test'], () => (
   gulp.src(paths.clientEntryPoint)
     .pipe(webpack(webpackConfig))
     .pipe(gulp.dest(paths.distDir))
+));
+
+gulp.task('test', ['build'], () => (
+  gulp.src(paths.allLibTests)
+    .pipe(mocha())
 ));
 
 gulp.task('watch', () => {
